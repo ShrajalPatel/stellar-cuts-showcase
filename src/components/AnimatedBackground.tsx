@@ -8,6 +8,8 @@ interface Particle {
   opacity: number;
   speed: number;
   color: string;
+  driftSpeed: number;
+  layer: number;
 }
 
 const AnimatedBackground = () => {
@@ -32,25 +34,31 @@ const AnimatedBackground = () => {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    // Create particles
+    // Create particles with depth layers
     const createParticles = () => {
       const particles: Particle[] = [];
-      const particleCount = Math.floor((window.innerWidth * window.innerHeight) / 15000);
+      const particleCount = Math.floor((window.innerWidth * window.innerHeight) / 10000);
       
       const colors = [
         "rgba(0, 229, 255, ", // cyan
         "rgba(168, 85, 247, ", // purple
+        "rgba(96, 165, 250, ", // blue
       ];
 
       for (let i = 0; i < particleCount; i++) {
+        const layer = Math.random();
+        const size = Math.random() * 2.5 + 0.5;
+        
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           baseY: Math.random() * canvas.height,
-          size: Math.random() * 2 + 1,
-          opacity: Math.random() * 0.5 + 0.3,
-          speed: Math.random() * 0.3 + 0.1,
+          size,
+          opacity: Math.random() * 0.4 + 0.2,
+          speed: layer * 1.5 + 0.3,
           color: colors[Math.floor(Math.random() * colors.length)],
+          driftSpeed: (Math.random() - 0.5) * 0.1,
+          layer,
         });
       }
       particlesRef.current = particles;
@@ -65,63 +73,78 @@ const AnimatedBackground = () => {
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
 
-    // Animation loop
+    // Animation loop with continuous drift
+    let time = 0;
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Gradually decay scroll velocity
-      scrollVelocityRef.current *= 0.95;
+      scrollVelocityRef.current *= 0.93;
+      time += 0.01;
 
       particlesRef.current.forEach((particle) => {
-        // Update particle position based on scroll velocity
-        particle.y = particle.baseY + scrollVelocityRef.current * particle.speed * 20;
+        // Continuous subtle drift animation
+        const drift = Math.sin(time + particle.x * 0.01) * particle.driftSpeed;
+        
+        // Update particle position based on scroll velocity (opposite direction)
+        particle.baseY += drift;
+        particle.y = particle.baseY - scrollVelocityRef.current * particle.speed * 25;
 
         // Wrap particles around screen
-        if (particle.y > canvas.height + 10) {
-          particle.baseY = -10;
+        if (particle.y > canvas.height + 20) {
+          particle.baseY = -20;
           particle.y = particle.baseY;
-        } else if (particle.y < -10) {
-          particle.baseY = canvas.height + 10;
+        } else if (particle.y < -20) {
+          particle.baseY = canvas.height + 20;
           particle.y = particle.baseY;
         }
 
-        // Draw particle glow
+        // Depth-based scale for parallax effect
+        const scale = 0.5 + particle.layer * 0.5;
+        const glowSize = particle.size * 4 * scale;
+        const coreSize = particle.size * scale;
+
+        // Draw particle glow with depth
         const gradient = ctx.createRadialGradient(
           particle.x,
           particle.y,
           0,
           particle.x,
           particle.y,
-          particle.size * 3
+          glowSize
         );
-        gradient.addColorStop(0, `${particle.color}${particle.opacity})`);
+        gradient.addColorStop(0, `${particle.color}${particle.opacity * particle.layer})`);
+        gradient.addColorStop(0.5, `${particle.color}${particle.opacity * particle.layer * 0.3})`);
         gradient.addColorStop(1, `${particle.color}0)`);
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size * 3, 0, Math.PI * 2);
+        ctx.arc(particle.x, particle.y, glowSize, 0, Math.PI * 2);
         ctx.fill();
 
         // Draw particle core
-        ctx.fillStyle = `${particle.color}${particle.opacity + 0.3})`;
+        ctx.fillStyle = `${particle.color}${Math.min(particle.opacity + 0.4, 1)})`;
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.arc(particle.x, particle.y, coreSize, 0, Math.PI * 2);
         ctx.fill();
 
-        // Draw streak when scrolling
-        if (Math.abs(scrollVelocityRef.current) > 0.5) {
-          const streakLength = Math.abs(scrollVelocityRef.current) * particle.speed * 5;
-          const gradient = ctx.createLinearGradient(
+        // Draw enhanced streak when scrolling
+        const scrollSpeed = Math.abs(scrollVelocityRef.current);
+        if (scrollSpeed > 0.3) {
+          const streakLength = scrollSpeed * particle.speed * 8 * particle.layer;
+          const streakGradient = ctx.createLinearGradient(
             particle.x,
             particle.y,
             particle.x,
-            particle.y - scrollVelocityRef.current * particle.speed * 3
+            particle.y - scrollVelocityRef.current * particle.speed * 4
           );
-          gradient.addColorStop(0, `${particle.color}${particle.opacity * 0.6})`);
-          gradient.addColorStop(1, `${particle.color}0)`);
+          streakGradient.addColorStop(0, `${particle.color}${particle.opacity * 0.8})`);
+          streakGradient.addColorStop(0.5, `${particle.color}${particle.opacity * 0.4})`);
+          streakGradient.addColorStop(1, `${particle.color}0)`);
 
-          ctx.strokeStyle = gradient;
-          ctx.lineWidth = particle.size * 0.5;
+          ctx.strokeStyle = streakGradient;
+          ctx.lineWidth = coreSize * 1.2;
+          ctx.lineCap = 'round';
           ctx.beginPath();
           ctx.moveTo(particle.x, particle.y);
           ctx.lineTo(particle.x, particle.y - streakLength);
@@ -146,7 +169,7 @@ const AnimatedBackground = () => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.6 }}
+      style={{ opacity: 0.7 }}
     />
   );
 };
