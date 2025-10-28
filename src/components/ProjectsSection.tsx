@@ -98,19 +98,16 @@ const projects = [
 const ProjectCard = ({ item, image }: { item: { title: string; views: string }; image: string }) => {
   return (
     <motion.div
-      whileHover={{ scale: 1.05 }}
-      transition={{ duration: 0.3 }}
       className="group relative"
     >
-      <div className="glass rounded-lg overflow-hidden h-full">
+      <div className="glass rounded-lg overflow-hidden h-full transition-shadow duration-300 group-hover:shadow-[0_0_30px_hsl(var(--primary)/0.6)]">
         {/* Preview Image */}
         <div className="relative h-48 overflow-hidden">
           <img
             src={image}
             alt={item.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
 
         {/* Content */}
