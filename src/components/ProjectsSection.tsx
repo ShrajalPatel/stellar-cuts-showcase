@@ -149,8 +149,8 @@ const CategorySection = ({ category, index }: { category: typeof projects[0]; in
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="-left-12 glass border-primary/20" />
-        <CarouselNext className="-right-12 glass border-primary/20" />
+        <CarouselPrevious className="-left-12 glass border-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.4)] hover:shadow-none transition-shadow duration-300" />
+        <CarouselNext className="-right-12 glass border-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.4)] hover:shadow-none transition-shadow duration-300" />
       </Carousel>
     </motion.div>
   );
