@@ -92,7 +92,7 @@ const HeroSection = () => {
       </div>
 
       {/* Gradient Transition Bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-neon z-20 opacity-60" 
+      <div className="absolute bottom-0 left-0 right-0 h-[10px] bg-gradient-neon z-20 opacity-60" 
            style={{
              maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 100%)',
              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 100%)'
