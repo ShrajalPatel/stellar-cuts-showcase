@@ -6,13 +6,13 @@ const StatCard = ({ stat, index }: { stat: { label: string; value: string }; ind
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
 
-  const rotateX = useTransform(mouseY, [0, 1], [5, -5]);
-  const rotateY = useTransform(mouseX, [0, 1], [-5, 5]);
+  const rotateX = useTransform(mouseY, [0, 1], [8, -8]);
+  const rotateY = useTransform(mouseX, [0, 1], [-8, 8]);
   const scale = useTransform(
     [mouseX, mouseY],
     ([x, y]: [number, number]) => {
       const centerDistance = Math.sqrt(Math.pow(x - 0.5, 2) + Math.pow(y - 0.5, 2));
-      return 1.05 - centerDistance * 0.03;
+      return 1.1 - centerDistance * 0.05;
     }
   );
 
@@ -45,12 +45,12 @@ const StatCard = ({ stat, index }: { stat: { label: string; value: string }; ind
         scale,
         transformStyle: "preserve-3d",
       }}
-      className="text-center p-4 rounded-lg bg-muted/30 transition-shadow duration-300 hover:shadow-[0_0_20px_hsl(var(--primary)/0.3)]"
+      className="text-center p-3 rounded-lg bg-muted/30 transition-shadow duration-300 hover:shadow-[0_0_25px_hsl(var(--primary)/0.4)]"
     >
-      <div className="text-3xl font-bold bg-gradient-neon bg-clip-text text-transparent">
+      <div className="text-2xl font-bold bg-gradient-neon bg-clip-text text-transparent">
         {stat.value}
       </div>
-      <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+      <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
     </motion.div>
   );
 };
