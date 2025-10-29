@@ -1,7 +1,7 @@
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useRef } from "react";
 
-const AboutSection = () => {
+const StatCard = ({ stat, index }: { stat: { label: string; value: string }; index: number }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
@@ -12,7 +12,7 @@ const AboutSection = () => {
     [mouseX, mouseY],
     ([x, y]: [number, number]) => {
       const centerDistance = Math.sqrt(Math.pow(x - 0.5, 2) + Math.pow(y - 0.5, 2));
-      return 1.03 - centerDistance * 0.02;
+      return 1.05 - centerDistance * 0.03;
     }
   );
 
@@ -31,22 +31,40 @@ const AboutSection = () => {
   };
 
   return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, scale: 0.8 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        scale,
+        transformStyle: "preserve-3d",
+      }}
+      className="text-center p-4 rounded-lg bg-muted/30 transition-shadow duration-300 hover:shadow-[0_0_20px_hsl(var(--primary)/0.3)]"
+    >
+      <div className="text-3xl font-bold bg-gradient-neon bg-clip-text text-transparent">
+        {stat.value}
+      </div>
+      <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+    </motion.div>
+  );
+};
+
+const AboutSection = () => {
+
+  return (
     <section id="about" className="py-20 px-6">
       <div className="max-w-4xl mx-auto">
         <motion.div
-          ref={cardRef}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          style={{
-            rotateX,
-            rotateY,
-            scale,
-            transformStyle: "preserve-3d",
-          }}
           className="glass rounded-2xl p-12 neon-glow"
         >
           <h2 className="text-5xl font-bold mb-8 text-center">
@@ -82,19 +100,7 @@ const AboutSection = () => {
                 { label: "Total Views", value: "50M+" },
                 { label: "Avg Rating", value: "4.9★" },
               ].map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="text-center p-4 rounded-lg bg-muted/30"
-                >
-                  <div className="text-3xl font-bold bg-gradient-neon bg-clip-text text-transparent">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
-                </motion.div>
+                <StatCard key={index} stat={stat} index={index} />
               ))}
             </div>
           </div>
